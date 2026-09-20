@@ -5,8 +5,7 @@ use std::collections::VecDeque;
 use rand::seq::SliceRandom;
 use rand::thread_rng;
 use serde::{Serialize, Deserialize};
-use rodio::{OutputStream};
-use std::sync::{Arc, Mutex};
+use rodio::{OutputStream, OutputStreamHandle};
 use std::time::Duration;
 use log::warn;
 
@@ -66,24 +65,29 @@ pub struct MusicPlayer {
     /// List of all tracks in the music directory
     all_tracks: Vec<Track>,
     /// Current playlist (may be shuffled)
+    #[allow(dead_code)]
     playlist: VecDeque<usize>,
     /// Current track index in all_tracks
+    #[allow(dead_code)]
     current_track_index: Option<usize>,
     /// Player state
+    #[allow(dead_code)]
     state: PlayerState,
     /// Playback mode
+    #[allow(dead_code)]
     playback_mode: PlaybackMode,
     /// Current playback position
+    #[allow(dead_code)]
     current_position: Duration,
-    /// Audio output stream
-    _stream: Option<OutputStream>,
-    /// Audio output handle
-    _stream_handle: Option<rodio::OutputStreamHandle>,
+    /// Audio output stream handle
+    _stream: Option<OutputStreamHandle>,
     /// Audio sink
-    sink: Option<Arc<Mutex<rodio::Sink>>>,
+    #[allow(dead_code)]
+    sink: Option<rodio::Sink>,
     /// Music directory path
     music_dir: PathBuf,
     /// Volume (0.0 to 1.0)
+    #[allow(dead_code)]
     volume: f32,
 }
 
@@ -103,7 +107,6 @@ impl MusicPlayer {
             playback_mode: PlaybackMode::Shuffle, // Default to shuffle as requested
             current_position: Duration::ZERO,
             _stream: None,
-            _stream_handle: None,
             sink: None,
             music_dir,
             volume: 0.7,
@@ -121,9 +124,8 @@ impl MusicPlayer {
     /// Initialize audio output
     fn init_audio(&mut self) {
         match OutputStream::try_default() {
-            Ok((stream, handle)) => {
-                self._stream = Some(stream);
-                self._stream_handle = Some(handle);
+            Ok((_stream, handle)) => {
+                self._stream = Some(handle);
                 // Sink will be created when playing
             }
             Err(e) => {
@@ -141,8 +143,9 @@ impl MusicPlayer {
             return;
         }
 
-        let music_dir = self.music_dir.clone();
-        self.scan_directory(&music_dir);
+        // Clone the music_dir to avoid borrow conflict
+        let music_dir_clone = self.music_dir.clone();
+        self.scan_directory(&music_dir_clone);
         
         // Sort tracks by title
         self.all_tracks.sort_by(|a, b| a.title.cmp(&b.title));
@@ -208,11 +211,14 @@ impl MusicPlayer {
                     match rodio::Decoder::new(file) {
                         Ok(source) => {
                             // Create a new sink for playback
-                            if let Some(handle) = &self._stream_handle {
-                                if let Ok(sink) = rodio::Sink::try_new(handle) {
-                                    sink.append(source);
-                                    self.sink = Some(Arc::new(Mutex::new(sink)));
-                                    self.state = PlayerState::Playing;
+                            if let Some(stream_handle) = &self._stream {
+                                match rodio::Sink::try_new(stream_handle) {
+                                    Ok(sink) => {
+                                        sink.append(source);
+                                        self.sink = Some(sink);
+                                        self.state = PlayerState::Playing;
+                                    }
+                                    Err(e) => warn!("Failed to create sink: {}", e),
                                 }
                             }
                         }
@@ -236,7 +242,7 @@ impl MusicPlayer {
 
     /// Pause playback
     pub fn pause(&mut self) {
-        if let Some(ref sink) = self.sink {
+        if let Some(_sink) = &self.sink {
             // Note: rodio doesn't have built-in pause, so we stop for now
             // A more advanced implementation would use a different approach
         }

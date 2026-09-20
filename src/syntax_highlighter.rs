@@ -105,7 +105,7 @@ pub struct SyntaxHighlighter {
 impl SyntaxHighlighter {
     /// Create a new syntax highlighter
     pub fn new() -> Self {
-        let mut parser = Parser::new();
+        let parser = Parser::new();
         
         Self {
             parser,

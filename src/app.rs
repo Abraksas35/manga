@@ -27,6 +27,7 @@ pub struct AuroraApp {
     /// Wallpaper manager
     wallpaper: WallpaperManager,
     /// Music player
+    #[allow(dead_code)]
     music_player: MusicPlayer,
     /// UI state
     ui: UI,
@@ -250,7 +251,7 @@ impl ApplicationHandler for AuroraApp {
         }
     }
 
-    fn window_event(&mut self, event_loop: &ActiveEventLoop, window_id: WindowId, event: WindowEvent) {
+    fn window_event(&mut self, _event_loop: &ActiveEventLoop, _window_id: WindowId, event: WindowEvent) {
         match event {
             WindowEvent::CloseRequested => {
                 info!("Close requested");
@@ -272,11 +273,11 @@ impl ApplicationHandler for AuroraApp {
                 self.handle_mouse_scroll(delta);
             }
             
-            WindowEvent::MouseInput { state, button, .. } => {
+            WindowEvent::MouseInput { state: _, button: _, .. } => {
                 // Handle mouse clicks for UI interaction
             }
             
-            WindowEvent::CursorMoved { position, .. } => {
+            WindowEvent::CursorMoved { position: _, .. } => {
                 // Track cursor position for hover effects
             }
             
@@ -318,7 +319,7 @@ impl ApplicationHandler for AuroraApp {
         }
     }
 
-    fn exiting(&mut self, event_loop: &ActiveEventLoop) {
+    fn exiting(&mut self, _event_loop: &ActiveEventLoop) {
         info!("Exiting Aurora IDE...");
         
         // Save all data

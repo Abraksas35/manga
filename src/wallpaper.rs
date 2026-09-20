@@ -192,9 +192,9 @@ impl Wallpaper {
 
         self.frames.clear();
 
-        if let Ok(Some(_frame)) = reader.next_frame_info() {
+        if let Ok(Some(frame)) = reader.next_frame_info() {
             // Set frame duration from first frame
-            self.frame_duration = Duration::from_millis(_frame.delay as u64 * 10);
+            self.frame_duration = Duration::from_millis(frame.delay as u64 * 10);
         }
 
         while let Ok(Some(frame)) = reader.read_next_frame() {
