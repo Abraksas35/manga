@@ -2,11 +2,10 @@
 
 use std::path::PathBuf;
 use std::time::Duration;
-use image::{DynamicImage, ImageFormat};
-use serde::{Serialize, Deserialize};
+use image::DynamicImage;
 
 /// Type of wallpaper
-#[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
+#[derive(Debug, Clone, PartialEq)]
 pub enum WallpaperType {
     /// Static image (PNG, JPG, etc.)
     Static,
@@ -16,25 +15,117 @@ pub enum WallpaperType {
     CustomAnimation,
 }
 
-/// Wallpaper data
-#[derive(Debug, Clone, Serialize, Deserialize)]
+// Manual Serialize implementation for WallpaperType
+impl serde::Serialize for WallpaperType {
+    fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
+    where
+        S: serde::Serializer,
+    {
+        use serde::ser::SerializeStruct;
+        let mut state = serializer.serialize_struct("WallpaperType", 1)?;
+        match self {
+            WallpaperType::Static => state.serialize_field("type", "static")?,
+            WallpaperType::AnimatedGif => state.serialize_field("type", "animated_gif")?,
+            WallpaperType::CustomAnimation => state.serialize_field("type", "custom_animation")?,
+        }
+        state.end()
+    }
+}
+
+// Manual Deserialize implementation for WallpaperType
+impl<'de> serde::Deserialize<'de> for WallpaperType {
+    fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
+    where
+        D: serde::Deserializer<'de>,
+    {
+        #[derive(serde::Deserialize)]
+        struct WallpaperTypeHelper {
+            #[serde(rename = "type")]
+            type_field: String,
+        }
+
+        let helper = WallpaperTypeHelper::deserialize(deserializer)?;
+        match helper.type_field.as_str() {
+            "static" => Ok(WallpaperType::Static),
+            "animated_gif" => Ok(WallpaperType::AnimatedGif),
+            "custom_animation" => Ok(WallpaperType::CustomAnimation),
+            _ => Err(serde::de::Error::unknown_variant(
+                &helper.type_field,
+                &["static", "animated_gif", "custom_animation"],
+            )),
+        }
+    }
+}
+
+/// Wallpaper data - not serializable due to DynamicImage and Instant
+#[derive(Debug, Clone)]
 pub struct Wallpaper {
     /// Path to the wallpaper file
     pub path: PathBuf,
     /// Type of wallpaper
     pub wallpaper_type: WallpaperType,
-    /// Animation frames (for animated wallpapers)
+    /// Animation frames (for animated wallpapers) - skipped during serialization
     pub frames: Vec<DynamicImage>,
     /// Current frame index
     pub current_frame: usize,
     /// Frame duration for animations
     pub frame_duration: Duration,
-    /// Last frame change time
+    /// Last frame change time - skipped during serialization
     pub last_frame_change: std::time::Instant,
     /// Whether the wallpaper is loaded
     pub is_loaded: bool,
     /// Optional name/description
     pub name: Option<String>,
+}
+
+// Manual Serialize implementation to skip non-serializable fields
+impl serde::Serialize for Wallpaper {
+    fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
+    where
+        S: serde::Serializer,
+    {
+        use serde::ser::SerializeStruct;
+        let mut state = serializer.serialize_struct("Wallpaper", 6)?;
+        state.serialize_field("path", &self.path)?;
+        state.serialize_field("wallpaper_type", &self.wallpaper_type)?;
+        // Skip frames
+        state.serialize_field("current_frame", &self.current_frame)?;
+        state.serialize_field("frame_duration", &self.frame_duration)?;
+        // Skip last_frame_change
+        state.serialize_field("is_loaded", &self.is_loaded)?;
+        state.serialize_field("name", &self.name)?;
+        state.end()
+    }
+}
+
+// Manual Deserialize implementation to set default values for skipped fields
+impl<'de> serde::Deserialize<'de> for Wallpaper {
+    fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
+    where
+        D: serde::Deserializer<'de>,
+    {
+        #[derive(serde::Deserialize)]
+        struct WallpaperHelper {
+            path: PathBuf,
+            wallpaper_type: WallpaperType,
+            current_frame: usize,
+            frame_duration: Duration,
+            is_loaded: bool,
+            name: Option<String>,
+        }
+
+        let helper = WallpaperHelper::deserialize(deserializer)?;
+        Ok(Wallpaper {
+            path: helper.path,
+            wallpaper_type: helper.wallpaper_type,
+            frames: Vec::new(),
+            current_frame: helper.current_frame,
+            frame_duration: helper.frame_duration,
+            last_frame_change: std::time::Instant::now(),
+            is_loaded: helper.is_loaded,
+            name: helper.name,
+        })
+    }
 }
 
 impl Wallpaper {
@@ -101,9 +192,9 @@ impl Wallpaper {
 
         self.frames.clear();
 
-        if let Some(frame) = reader.next_frame_info() {
+        if let Ok(Some(_frame)) = reader.next_frame_info() {
             // Set frame duration from first frame
-            self.frame_duration = Duration::from_millis(frame.delay as u64 * 10);
+            self.frame_duration = Duration::from_millis(_frame.delay as u64 * 10);
         }
 
         while let Ok(Some(frame)) = reader.read_next_frame() {
@@ -150,7 +241,7 @@ impl Wallpaper {
 
     /// Get wallpaper dimensions
     pub fn dimensions(&self) -> Option<(u32, u32)> {
-        self.frames.first().map(|f| f.dimensions())
+        self.frames.first().map(|f| (f.width(), f.height()))
     }
 
     /// Set custom frames for animation
@@ -210,8 +301,8 @@ impl WallpaperManager {
             return;
         }
 
-        for entry in std::fs::read_dir(&self.wallpapers_dir).unwrap_or_else(|_| std::fs::ReadDir::empty()) {
-            if let Ok(entry) = entry {
+        if let Ok(entries) = std::fs::read_dir(&self.wallpapers_dir) {
+            for entry in entries.flatten() {
                 let path = entry.path();
                 if path.is_file() {
                     if let Some(ext) = path.extension().and_then(|e| e.to_str()) {

@@ -2,18 +2,15 @@
 
 use winit::{
     application::ApplicationHandler,
-    event::{WindowEvent, ElementState, KeyEvent, MouseScrollDelta, TouchPhase},
+    event::{WindowEvent, ElementState, KeyEvent, MouseScrollDelta},
     event_loop::{ActiveEventLoop, ControlFlow, EventLoop},
     keyboard::{KeyCode, ModifiersState, PhysicalKey},
     window::{Window, WindowId, WindowAttributes},
 };
-use std::path::PathBuf;
-use log::{info, error, warn};
+use log::{info, error};
 
 use crate::editor::Editor;
 use crate::time_tracker::TimeTracker;
-use crate::history::HistoryManager;
-use crate::checkpoint::CheckpointManager;
 use crate::wallpaper::WallpaperManager;
 use crate::music_player::MusicPlayer;
 use crate::ui::UI;
@@ -260,11 +257,11 @@ impl ApplicationHandler for AuroraApp {
                 self.should_close = true;
             }
             
-            WindowEvent::KeyboardInput { event, .. } => {
+            WindowEvent::KeyboardInput { ref event, .. } => {
                 if event.state == ElementState::Pressed {
                     // Modifiers are handled separately via ModifiersChanged
                 }
-                self.handle_keyboard_input(event, event.state);
+                self.handle_keyboard_input(event.clone(), event.state);
             }
             
             WindowEvent::ModifiersChanged(modifiers) => {
@@ -294,10 +291,9 @@ impl ApplicationHandler for AuroraApp {
             
             WindowEvent::Resized(size) => {
                 // Update viewport based on new size
-                if let Some(editor) = self.editor.viewport_mut() {
-                    editor.visible_lines = (size.height as f32 / 20.0) as usize; // Assuming ~20px per line
-                    editor.visible_columns = (size.width as f32 / 10.0) as usize; // Assuming ~10px per character
-                }
+                let visible_lines = (size.height as f32 / 20.0) as usize; // Assuming ~20px per line
+                let visible_columns = (size.width as f32 / 10.0) as usize; // Assuming ~10px per character
+                self.editor.set_viewport_size(visible_lines, visible_columns);
             }
             
             WindowEvent::Focused(focused) => {

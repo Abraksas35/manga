@@ -69,9 +69,9 @@ impl TimeTracker {
         
         // Initialize project data if needed
         if let Some(project_root) = self.find_project_root(&path) {
-            self.projects.entry(project_root.to_string())
+            self.projects.entry(project_root.display().to_string())
                 .or_insert_with(|| ProjectData {
-                    root_path: project_root.to_string(),
+                    root_path: project_root.display().to_string(),
                     files: HashMap::new(),
                     total_seconds: 0,
                     created_at: Utc::now(),
@@ -96,7 +96,7 @@ impl TimeTracker {
         let path_str = path.to_string_lossy().to_string();
         
         if let Some(project_root) = self.find_project_root(&path) {
-            if let Some(project) = self.projects.get_mut(&project_root.to_string()) {
+            if let Some(project) = self.projects.get_mut(&project_root.display().to_string()) {
                 let seconds = duration.num_seconds() as u64;
                 
                 let file_session = project.files.entry(path_str.clone()).or_insert_with(|| FileSession {
@@ -139,7 +139,7 @@ impl TimeTracker {
             let path_str = path.to_string_lossy().to_string();
             
             if let Some(project_root) = self.find_project_root(path) {
-                self.projects.get(&project_root.to_string())
+                self.projects.get(&project_root.display().to_string())
                     .and_then(|p| p.files.get(&path_str))
                     .map(|f| f.total_seconds)
             } else {
@@ -151,7 +151,7 @@ impl TimeTracker {
     /// Get total project time
     pub fn get_project_time(&self, path: &PathBuf) -> Option<u64> {
         self.find_project_root(path)
-            .and_then(|root| self.projects.get(&root.to_string()))
+            .and_then(|root| self.projects.get(&root.display().to_string()))
             .map(|p| p.total_seconds)
     }
 

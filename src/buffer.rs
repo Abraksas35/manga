@@ -87,15 +87,20 @@ impl Buffer {
 
     /// Get character index from line/column
     pub fn line_col_to_char(&self, line: usize, col: usize) -> usize {
-        let line_start = self.rope.line_to_char(line);
+        let line_start = self.line_to_char_index(line);
         let line_end = if line + 1 < self.rope.len_lines() {
-            self.rope.line_to_char(line + 1)
+            self.line_to_char_index(line + 1)
         } else {
             self.rope.len_chars()
         };
         
         let max_col = line_end - line_start;
         line_start + col.min(max_col)
+    }
+
+    /// Get character index of the start of a line
+    pub fn line_to_char_index(&self, line: usize) -> usize {
+        self.rope.line_to_char(line.min(self.rope.len_lines().saturating_sub(1)))
     }
 
     /// Get line/column from character index

@@ -5,7 +5,7 @@ use std::collections::VecDeque;
 use rand::seq::SliceRandom;
 use rand::thread_rng;
 use serde::{Serialize, Deserialize};
-use rodio::{Source, OutputStream};
+use rodio::{OutputStream};
 use std::sync::{Arc, Mutex};
 use std::time::Duration;
 use log::warn;
@@ -77,6 +77,8 @@ pub struct MusicPlayer {
     current_position: Duration,
     /// Audio output stream
     _stream: Option<OutputStream>,
+    /// Audio output handle
+    _stream_handle: Option<rodio::OutputStreamHandle>,
     /// Audio sink
     sink: Option<Arc<Mutex<rodio::Sink>>>,
     /// Music directory path
@@ -101,6 +103,7 @@ impl MusicPlayer {
             playback_mode: PlaybackMode::Shuffle, // Default to shuffle as requested
             current_position: Duration::ZERO,
             _stream: None,
+            _stream_handle: None,
             sink: None,
             music_dir,
             volume: 0.7,
@@ -120,6 +123,7 @@ impl MusicPlayer {
         match OutputStream::try_default() {
             Ok((stream, handle)) => {
                 self._stream = Some(stream);
+                self._stream_handle = Some(handle);
                 // Sink will be created when playing
             }
             Err(e) => {
@@ -137,7 +141,8 @@ impl MusicPlayer {
             return;
         }
 
-        self.scan_directory(&self.music_dir);
+        let music_dir = self.music_dir.clone();
+        self.scan_directory(&music_dir);
         
         // Sort tracks by title
         self.all_tracks.sort_by(|a, b| a.title.cmp(&b.title));
@@ -203,10 +208,12 @@ impl MusicPlayer {
                     match rodio::Decoder::new(file) {
                         Ok(source) => {
                             // Create a new sink for playback
-                            if let Ok(sink) = rodio::Sink::try_new(&self._stream.as_ref().unwrap()) {
-                                sink.append(source);
-                                self.sink = Some(Arc::new(Mutex::new(sink)));
-                                self.state = PlayerState::Playing;
+                            if let Some(handle) = &self._stream_handle {
+                                if let Ok(sink) = rodio::Sink::try_new(handle) {
+                                    sink.append(source);
+                                    self.sink = Some(Arc::new(Mutex::new(sink)));
+                                    self.state = PlayerState::Playing;
+                                }
                             }
                         }
                         Err(e) => warn!("Failed to decode audio file: {}", e),
