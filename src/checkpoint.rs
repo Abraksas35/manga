@@ -69,31 +69,37 @@ impl FileCheckpoints {
     }
 
     /// Get the latest checkpoint
+    #[allow(dead_code)]
     pub fn get_latest(&self) -> Option<&Checkpoint> {
         self.checkpoints.back()
     }
 
     /// Get checkpoint by index (0 = oldest, len-1 = newest)
+    #[allow(dead_code)]
     pub fn get_by_index(&self, index: usize) -> Option<&Checkpoint> {
         self.checkpoints.get(index)
     }
 
     /// Get all checkpoints
+    #[allow(dead_code)]
     pub fn get_all(&self) -> &VecDeque<Checkpoint> {
         &self.checkpoints
     }
 
     /// Get checkpoint by ID
+    #[allow(dead_code)]
     pub fn get_by_id(&self, id: u64) -> Option<&Checkpoint> {
         self.checkpoints.iter().find(|c| c.id == id)
     }
 
     /// Restore to a specific checkpoint (returns the content)
+    #[allow(dead_code)]
     pub fn restore_to_checkpoint(&self, id: u64) -> Option<(String, (usize, usize))> {
         self.get_by_id(id).map(|c| (c.content.clone(), (c.cursor_line, c.cursor_col)))
     }
 
     /// Delete a checkpoint by ID
+    #[allow(dead_code)]
     pub fn delete_checkpoint(&mut self, id: u64) -> bool {
         if let Some(pos) = self.checkpoints.iter().position(|c| c.id == id) {
             self.checkpoints.remove(pos);
@@ -104,6 +110,7 @@ impl FileCheckpoints {
     }
 
     /// Clear all checkpoints
+    #[allow(dead_code)]
     pub fn clear(&mut self) {
         self.checkpoints.clear();
     }
@@ -147,12 +154,14 @@ impl CheckpointManager {
     }
 
     /// Get all checkpoints for a file
+    #[allow(dead_code)]
     pub fn get_checkpoints(&self, file_path: &PathBuf) -> Option<&FileCheckpoints> {
         let path_str = file_path.to_string_lossy().to_string();
         self.file_checkpoints.get(&path_str)
     }
 
     /// Restore a file to a specific checkpoint
+    #[allow(dead_code)]
     pub fn restore_checkpoint(&self, file_path: &PathBuf, checkpoint_id: u64) -> Option<(String, (usize, usize))> {
         let path_str = file_path.to_string_lossy().to_string();
         self.file_checkpoints.get(&path_str)
@@ -160,6 +169,7 @@ impl CheckpointManager {
     }
 
     /// List all files with checkpoints
+    #[allow(dead_code)]
     pub fn list_files_with_checkpoints(&self) -> Vec<&String> {
         self.file_checkpoints.keys().collect()
     }

@@ -134,6 +134,7 @@ impl TimeTracker {
     }
 
     /// Get time spent on current file
+    #[allow(dead_code)]
     pub fn get_current_file_time(&self) -> Option<u64> {
         self.current_file.as_ref().and_then(|path| {
             let path_str = path.to_string_lossy().to_string();
@@ -149,6 +150,7 @@ impl TimeTracker {
     }
 
     /// Get total project time
+    #[allow(dead_code)]
     pub fn get_project_time(&self, path: &PathBuf) -> Option<u64> {
         self.find_project_root(path)
             .and_then(|root| self.projects.get(&root.display().to_string()))
@@ -156,6 +158,7 @@ impl TimeTracker {
     }
 
     /// Format seconds into human readable string
+    #[allow(dead_code)]
     pub fn format_duration(seconds: u64) -> String {
         let hours = seconds / 3600;
         let minutes = (seconds % 3600) / 60;
@@ -188,6 +191,7 @@ impl TimeTracker {
     }
 
     /// Get statistics for all files in a project
+    #[allow(dead_code)]
     pub fn get_project_stats(&self, project_root: &str) -> Option<&ProjectData> {
         self.projects.get(project_root)
     }

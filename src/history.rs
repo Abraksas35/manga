@@ -86,6 +86,7 @@ impl FileHistory {
     }
 
     /// Get snapshot at a specific time (closest before or at the time)
+    #[allow(dead_code)]
     pub fn get_snapshot_at(&self, time: DateTime<Utc>) -> Option<&CodeSnapshot> {
         self.snapshots
             .iter()
@@ -94,11 +95,13 @@ impl FileHistory {
     }
 
     /// Get snapshot by index (0 = oldest, len-1 = newest)
+    #[allow(dead_code)]
     pub fn get_snapshot_by_index(&self, index: usize) -> Option<&CodeSnapshot> {
         self.snapshots.get(index)
     }
 
     /// Get all snapshots between two times
+    #[allow(dead_code)]
     pub fn get_snapshots_between(&self, start: DateTime<Utc>, end: DateTime<Utc>) -> Vec<&CodeSnapshot> {
         self.snapshots
             .iter()
@@ -107,16 +110,19 @@ impl FileHistory {
     }
 
     /// Get the latest snapshot
+    #[allow(dead_code)]
     pub fn get_latest(&self) -> Option<&CodeSnapshot> {
         self.snapshots.last()
     }
 
     /// Get the first snapshot
+    #[allow(dead_code)]
     pub fn get_first(&self) -> Option<&CodeSnapshot> {
         self.snapshots.first()
     }
 
     /// Get total code growth (lines added over time)
+    #[allow(dead_code)]
     pub fn get_growth_timeline(&self) -> Vec<(DateTime<Utc>, usize)> {
         self.snapshots
             .iter()
@@ -125,6 +131,7 @@ impl FileHistory {
     }
 
     /// Get only checkpoint snapshots
+    #[allow(dead_code)]
     pub fn get_checkpoints(&self) -> Vec<&CodeSnapshot> {
         self.snapshots
             .iter()
@@ -174,6 +181,7 @@ impl HistoryManager {
     }
 
     /// Get code at a specific time for a file
+    #[allow(dead_code)]
     pub fn get_code_at_time(&self, path: &PathBuf, time: DateTime<Utc>) -> Option<String> {
         let path_str = path.to_string_lossy().to_string();
         
@@ -183,6 +191,7 @@ impl HistoryManager {
     }
 
     /// Get growth timeline for a file
+    #[allow(dead_code)]
     pub fn get_file_growth(&self, path: &PathBuf) -> Option<Vec<(DateTime<Utc>, usize)>> {
         let path_str = path.to_string_lossy().to_string();
         
@@ -191,6 +200,7 @@ impl HistoryManager {
     }
 
     /// Get project-wide growth (sum of all files)
+    #[allow(dead_code)]
     pub fn get_project_growth(&self, project_root: &PathBuf) -> Vec<(DateTime<Utc>, usize)> {
         let mut timeline: Vec<(DateTime<Utc>, usize)> = Vec::new();
         let project_str = project_root.to_string_lossy().to_string();
@@ -250,6 +260,7 @@ impl HistoryManager {
     }
 
     /// Set maximum snapshots per file
+    #[allow(dead_code)]
     pub fn set_max_snapshots(&mut self, max: usize) {
         self.max_snapshots_per_file = max;
         

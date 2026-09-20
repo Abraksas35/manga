@@ -36,6 +36,7 @@ pub struct Editor {
     /// Current buffer
     buffer: Buffer,
     /// Syntax highlighter
+    #[allow(dead_code)]
     highlighter: SyntaxHighlighter,
     /// Viewport settings
     viewport: Viewport,
@@ -44,12 +45,15 @@ pub struct Editor {
     /// Checkpoint manager
     checkpoints: CheckpointManager,
     /// Clipboard content
+    #[allow(dead_code)]
     clipboard: String,
     /// Whether to show line numbers
+    #[allow(dead_code)]
     show_line_numbers: bool,
     /// Tab width in spaces
     tab_width: usize,
     /// Current IME composition
+    #[allow(dead_code)]
     ime_composition: Option<String>,
 }
 
@@ -70,6 +74,7 @@ impl Editor {
     }
 
     /// Open a file
+    #[allow(dead_code)]
     pub fn open_file(&mut self, path: &PathBuf) -> Result<(), std::io::Error> {
         self.buffer = Buffer::from_file(path)?;
         
@@ -247,6 +252,7 @@ impl Editor {
     }
 
     /// Handle text input
+    #[allow(dead_code)]
     pub fn handle_text(&mut self, text: &str) {
         let (line, col) = self.buffer.cursor();
         let char_idx = self.buffer.line_col_to_char(line, col);
@@ -421,6 +427,7 @@ impl Editor {
     }
 
     /// Get highlighted segments for rendering
+    #[allow(dead_code)]
     pub fn get_highlights(&self) -> Vec<HighlightedSegment> {
         self.highlighter.highlight(&self.buffer.to_string())
     }
@@ -431,11 +438,13 @@ impl Editor {
     }
 
     /// Get mutable reference to buffer
+    #[allow(dead_code)]
     pub fn buffer_mut(&mut self) -> &mut Buffer {
         &mut self.buffer
     }
 
     /// Get viewport
+    #[allow(dead_code)]
     pub fn viewport(&self) -> &Viewport {
         &self.viewport
     }
@@ -457,16 +466,19 @@ impl Editor {
     }
 
     /// Get syntax highlighter
+    #[allow(dead_code)]
     pub fn highlighter(&self) -> &SyntaxHighlighter {
         &self.highlighter
     }
 
     /// Get mutable reference to highlighter
+    #[allow(dead_code)]
     pub fn highlighter_mut(&mut self) -> &mut SyntaxHighlighter {
         &mut self.highlighter
     }
 
     /// Get history manager
+    #[allow(dead_code)]
     pub fn history(&self) -> &HistoryManager {
         &self.history
     }
@@ -477,6 +489,7 @@ impl Editor {
     }
 
     /// Get checkpoint manager
+    #[allow(dead_code)]
     pub fn checkpoints(&self) -> &CheckpointManager {
         &self.checkpoints
     }
@@ -487,16 +500,19 @@ impl Editor {
     }
 
     /// Set tab width
+    #[allow(dead_code)]
     pub fn set_tab_width(&mut self, width: usize) {
         self.tab_width = width;
     }
 
     /// Toggle line numbers
+    #[allow(dead_code)]
     pub fn toggle_line_numbers(&mut self) {
         self.show_line_numbers = !self.show_line_numbers;
     }
 
     /// Check if line numbers are shown
+    #[allow(dead_code)]
     pub fn shows_line_numbers(&self) -> bool {
         self.show_line_numbers
     }

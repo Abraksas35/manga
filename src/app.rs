@@ -27,6 +27,7 @@ pub struct AuroraApp {
     /// Wallpaper manager
     wallpaper: WallpaperManager,
     /// Music player
+    #[allow(dead_code)]
     music_player: MusicPlayer,
     /// UI state
     ui: UI,

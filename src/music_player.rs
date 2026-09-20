@@ -6,7 +6,6 @@ use rand::seq::SliceRandom;
 use rand::thread_rng;
 use serde::{Serialize, Deserialize};
 use rodio::{OutputStream, OutputStreamHandle};
-use std::sync::Arc;
 use std::time::Duration;
 use log::warn;
 
@@ -66,22 +65,29 @@ pub struct MusicPlayer {
     /// List of all tracks in the music directory
     all_tracks: Vec<Track>,
     /// Current playlist (may be shuffled)
+    #[allow(dead_code)]
     playlist: VecDeque<usize>,
     /// Current track index in all_tracks
+    #[allow(dead_code)]
     current_track_index: Option<usize>,
     /// Player state
+    #[allow(dead_code)]
     state: PlayerState,
     /// Playback mode
+    #[allow(dead_code)]
     playback_mode: PlaybackMode,
     /// Current playback position
+    #[allow(dead_code)]
     current_position: Duration,
     /// Audio output stream handle
-    _stream: Option<Arc<OutputStreamHandle>>,
+    _stream: Option<OutputStreamHandle>,
     /// Audio sink
+    #[allow(dead_code)]
     sink: Option<rodio::Sink>,
     /// Music directory path
     music_dir: PathBuf,
     /// Volume (0.0 to 1.0)
+    #[allow(dead_code)]
     volume: f32,
 }
 
@@ -119,7 +125,7 @@ impl MusicPlayer {
     fn init_audio(&mut self) {
         match OutputStream::try_default() {
             Ok((_stream, handle)) => {
-                self._stream = Some(Arc::new(handle));
+                self._stream = Some(handle);
                 // Sink will be created when playing
             }
             Err(e) => {
@@ -206,7 +212,7 @@ impl MusicPlayer {
                         Ok(source) => {
                             // Create a new sink for playback
                             if let Some(stream_handle) = &self._stream {
-                                match rodio::Sink::try_new(stream_handle.as_ref()) {
+                                match rodio::Sink::try_new(stream_handle) {
                                     Ok(sink) => {
                                         sink.append(source);
                                         self.sink = Some(sink);
