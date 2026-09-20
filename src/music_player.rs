@@ -118,8 +118,8 @@ impl MusicPlayer {
     /// Initialize audio output
     fn init_audio(&mut self) {
         match OutputStream::try_default() {
-            Ok((stream, _handle)) => {
-                self._stream = Some(Arc::new(stream.handle()));
+            Ok((_stream, handle)) => {
+                self._stream = Some(Arc::new(handle));
                 // Sink will be created when playing
             }
             Err(e) => {
