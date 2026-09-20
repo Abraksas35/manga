@@ -1,77 +1,37 @@
 ```
-# Rust-specific ignores
-target/
-Cargo.lock
-**/*.rs.bk
-**/*.rlib
+# Compiled and build artifacts
+*.o
+*.obj
+*.exe
+*.dll
+*.so
+*.a
+*.out
 
 # Dependencies
-vendor/
+target/
+**/target/
 
 # Logs and temp files
 *.log
 *.tmp
-
-# Environment
-.env
-.env.local
-.env.*
+*.swp
 
 # Editors
 .vscode/
 .idea/
-*.swp
-*.swo
 
-# OS
-.DS_Store
-Thumbs.db
+# Environment
+.env
+.env.local
+*.env.*
 
 # Coverage
 coverage/
 htmlcov/
 .coverage
 
-# Build artifacts from other tools
-dist/
-build/
-*.exe
-*.dll
-*.so
-*.a
-*.o
-*.out
-
-# Python (if mixed project)
-__pycache__/
-*.pyc
-*.pyo
-*.pyd
-.mypy_cache/
-.pytest_cache/
-
-# Node (if mixed project)
-node_modules/
-
-# Java (if mixed project)
-*.class
-*.jar
-*.war
-*.ear
-*.nar
-target/
-.gradle/
-
-# C/C++ (if mixed project)
-*.a
-*.o
-*.so
-*.dylib
-*.dll
-*.exe
-*.out
-
-# Compressed files
+# Compression
 *.zip
 *.gz
 *.tar

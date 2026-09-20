@@ -1,6 +1,5 @@
 //! UI module - User interface components and rendering
 
-use vello::kurbo::{Rect, Vec2};
 use vello::peniko::Color;
 use crate::editor::Editor;
 use crate::time_tracker::TimeTracker;
@@ -238,7 +237,7 @@ impl UI {
     /// Handle mouse scroll
     pub fn handle_mouse_scroll(&mut self, delta_x: f64, delta_y: f64, modifiers: winit::keyboard::ModifiersState, editor: &mut Editor) -> bool {
         // Ctrl+Scroll for horizontal scrolling
-        if modifiers.control() {
+        if modifiers.contains(winit::keyboard::ModifiersState::CONTROL) {
             editor.scroll_horizontal(delta_x as i32);
             return true;
         }

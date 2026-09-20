@@ -1,7 +1,7 @@
 //! Editor module - Main text editor component
 
 use crate::buffer::Buffer;
-use crate::syntax_highlighter::{SyntaxHighlighter, SupportedLanguage, HighlightedSegment};
+use crate::syntax_highlighter::{SyntaxHighlighter, HighlightedSegment};
 use crate::history::{HistoryManager, ChangeType};
 use crate::checkpoint::CheckpointManager;
 use winit::keyboard::{KeyCode, ModifiersState};
@@ -122,7 +122,7 @@ impl Editor {
             self.checkpoints.create_checkpoint(
                 path,
                 self.buffer.to_string(),
-                description,
+                description.clone(),
                 cursor,
             );
             
@@ -131,7 +131,7 @@ impl Editor {
                 path,
                 self.buffer.to_string(),
                 ChangeType::Checkpoint,
-                description,
+                description.clone(),
             );
         }
         
@@ -143,62 +143,62 @@ impl Editor {
         // Return true if the key was handled
         
         // Ctrl+S - Save
-        if modifiers.control() && !modifiers.shift() && !modifiers.alt() && key == KeyCode::KeyS {
+        if modifiers.contains(ModifiersState::CONTROL) && !modifiers.contains(ModifiersState::SHIFT) && !modifiers.contains(ModifiersState::ALT) && key == KeyCode::KeyS {
             let _ = self.save();
             return true;
         }
         
         // Alt+Shift+S - Checkpoint save
-        if modifiers.alt() && modifiers.shift() && !modifiers.control() && key == KeyCode::KeyS {
+        if modifiers.contains(ModifiersState::ALT) && modifiers.contains(ModifiersState::SHIFT) && !modifiers.contains(ModifiersState::CONTROL) && key == KeyCode::KeyS {
             let _ = self.save_checkpoint(None);
             return true;
         }
         
         // Ctrl+Z - Undo (basic implementation)
-        if modifiers.control() && !modifiers.shift() && !modifiers.alt() && key == KeyCode::KeyZ {
+        if modifiers.contains(ModifiersState::CONTROL) && !modifiers.contains(ModifiersState::SHIFT) && !modifiers.contains(ModifiersState::ALT) && key == KeyCode::KeyZ {
             // TODO: Implement proper undo
             return true;
         }
         
         // Ctrl+Y - Redo
-        if modifiers.control() && !modifiers.shift() && !modifiers.alt() && key == KeyCode::KeyY {
+        if modifiers.contains(ModifiersState::CONTROL) && !modifiers.contains(ModifiersState::SHIFT) && !modifiers.contains(ModifiersState::ALT) && key == KeyCode::KeyY {
             // TODO: Implement proper redo
             return true;
         }
         
         // Ctrl+A - Select all
-        if modifiers.control() && !modifiers.shift() && !modifiers.alt() && key == KeyCode::KeyA {
+        if modifiers.contains(ModifiersState::CONTROL) && !modifiers.contains(ModifiersState::SHIFT) && !modifiers.contains(ModifiersState::ALT) && key == KeyCode::KeyA {
             // Select all logic would go here
             return true;
         }
         
         // Ctrl+F - Find
-        if modifiers.control() && !modifiers.shift() && !modifiers.alt() && key == KeyCode::KeyF {
+        if modifiers.contains(ModifiersState::CONTROL) && !modifiers.contains(ModifiersState::SHIFT) && !modifiers.contains(ModifiersState::ALT) && key == KeyCode::KeyF {
             // TODO: Open find dialog
             return true;
         }
         
         // Ctrl+H - Replace
-        if modifiers.control() && !modifiers.shift() && !modifiers.alt() && key == KeyCode::KeyH {
+        if modifiers.contains(ModifiersState::CONTROL) && !modifiers.contains(ModifiersState::SHIFT) && !modifiers.contains(ModifiersState::ALT) && key == KeyCode::KeyH {
             // TODO: Open replace dialog
             return true;
         }
         
         // Ctrl+G - Go to line
-        if modifiers.control() && !modifiers.shift() && !modifiers.alt() && key == KeyCode::KeyG {
+        if modifiers.contains(ModifiersState::CONTROL) && !modifiers.contains(ModifiersState::SHIFT) && !modifiers.contains(ModifiersState::ALT) && key == KeyCode::KeyG {
             // TODO: Open go to line dialog
             return true;
         }
         
         // Ctrl+/ - Toggle comment
-        if modifiers.control() && !modifiers.shift() && !modifiers.alt() && key == KeyCode::Slash {
+        if modifiers.contains(ModifiersState::CONTROL) && !modifiers.contains(ModifiersState::SHIFT) && !modifiers.contains(ModifiersState::ALT) && key == KeyCode::Slash {
             self.toggle_comment();
             return true;
         }
         
         // Tab handling
-        if key == KeyCode::Tab && !modifiers.control() {
-            if modifiers.shift() {
+        if key == KeyCode::Tab && !modifiers.contains(ModifiersState::CONTROL) {
+            if modifiers.contains(ModifiersState::SHIFT) {
                 self.outdent_selection();
             } else {
                 self.indent_selection();
@@ -385,9 +385,9 @@ impl Editor {
             }
             
             // Replace the line
-            let line_start = self.buffer.line_to_char(line);
+            let line_start = self.buffer.line_to_char_index(line);
             let line_end = if line + 1 < self.buffer.len_lines() {
-                self.buffer.line_to_char(line + 1)
+                self.buffer.line_to_char_index(line + 1)
             } else {
                 self.buffer.len_chars()
             };
@@ -400,6 +400,12 @@ impl Editor {
             
             self.buffer.set_cursor(line, col);
         }
+    }
+
+    /// Set viewport size
+    pub fn set_viewport_size(&mut self, visible_lines: usize, visible_columns: usize) {
+        self.viewport.visible_lines = visible_lines;
+        self.viewport.visible_columns = visible_columns;
     }
 
     /// Update viewport based on cursor position

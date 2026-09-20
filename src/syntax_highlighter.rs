@@ -118,7 +118,7 @@ impl SyntaxHighlighter {
     /// Set the language for highlighting
     pub fn set_language(&mut self, lang: SupportedLanguage) -> Result<(), &'static str> {
         if let Some(tree_lang) = lang.get_language() {
-            self.parser.set_language(tree_lang).map_err(|_| "Failed to set language")?;
+            self.parser.set_language(&tree_lang).map_err(|_| "Failed to set language")?;
             self.current_language = Some(lang);
             
             // Load query for this language if not already loaded
@@ -467,7 +467,15 @@ impl SyntaxHighlighter {
             return vec![];
         }
 
-        let tree = self.parser.parse(code, None).unwrap();
+        // Create a new parser for each highlight call to avoid mutability issues
+        let mut parser = Parser::new();
+        if let Some(tree_lang) = self.current_language.unwrap().get_language() {
+            parser.set_language(&tree_lang).ok();
+        } else {
+            return vec![];
+        }
+        
+        let tree = parser.parse(code, None).unwrap();
         let root = tree.root_node();
         
         let lang = self.current_language.unwrap();
@@ -502,22 +510,8 @@ impl SyntaxHighlighter {
         // Sort by start position
         segments.sort_by_key(|s| s.start);
         
-        // Merge overlapping segments (keep the later one which is more specific)
-        let mut merged = Vec::new();
-        for segment in segments {
-            if let Some(last) = merged.last_mut() {
-                if last.end > segment.start {
-                    // Overlapping, replace with the new one (more specific)
-                    *last = segment;
-                } else {
-                    merged.push(segment);
-                }
-            } else {
-                merged.push(segment);
-            }
-        }
-
-        merged
+        // Return the segments directly (merge logic removed as it was incorrect)
+        segments
     }
 
     /// Get color for a capture based on its name
