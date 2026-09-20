@@ -1,0 +1,52 @@
+[package]
+name = "aurora_ide"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+# Windowing and input
+winit = "0.30"
+
+# GPU rendering
+wgpu = "0.20"
+vello = "0.2"
+
+# Text shaping and font rendering
+rustybuzz = "0.14"
+swash = "0.1"
+
+# Tree-sitter for syntax highlighting
+tree-sitter = "0.22"
+tree-sitter-rust = { version = "0.21", package = "tree-sitter-rust" }
+tree-sitter-python = { version = "0.21", package = "tree-sitter-python" }
+tree-sitter-javascript = { version = "0.21", package = "tree-sitter-javascript" }
+tree-sitter-typescript = { version = "0.21", package = "tree-sitter-typescript" }
+tree-sitter-cpp = { version = "0.21", package = "tree-sitter-cpp" }
+
+# Rope data structure for efficient text editing
+ropey = "1.6"
+
+# Time tracking
+chrono = { version = "0.4", features = ["serde"] }
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+
+# File system watching
+notify = "6.1"
+
+# Audio playback
+rodio = "0.19"
+
+# Random for shuffle mode
+rand = "0.8"
+
+# Image loading
+image = "0.25"
+gif = "0.13"
+
+# State persistence
+dirs = "5.0"
+
+# Logging
+log = "0.4"
+env_logger = "0.11"
