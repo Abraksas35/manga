@@ -1,45 +1,34 @@
 ```rust
-# Compiled and build artifacts
+target/
+Cargo.lock
+*.rs.bk
+**/*.rs.bk
+*.log
+.env
+.env.local
+.env.*
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+node_modules/
+venv/
+.venv/
+__pycache__/
+*.pyc
+*.class
 *.o
-*.obj
 *.exe
 *.dll
 *.so
 *.a
+*.obj
 *.out
-target/
-
-# Dependencies
-Cargo.lock
-**/vendor/
-**/.cargo/
-
-# Logs and temp files
-*.log
-*.tmp
-*.swp
-
-# Environment
-.env
-.env.local
-*.env.*
-
-# Editors
-.vscode/
-.idea/
-*.swp
-*.swo
-
-# Coverage
+dist/
+build/
+.mypy_cache/
+.pytest_cache/
+.coverage
 coverage/
 htmlcov/
-.coverage
-
-# Rust-specific
-**/deps/
-**/examples/
-**/incremental/
-**/target/
-**/*.dSYM/
-**/*.profraw
 ```

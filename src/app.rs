@@ -250,7 +250,7 @@ impl ApplicationHandler for AuroraApp {
         }
     }
 
-    fn window_event(&mut self, event_loop: &ActiveEventLoop, window_id: WindowId, event: WindowEvent) {
+    fn window_event(&mut self, _event_loop: &ActiveEventLoop, _window_id: WindowId, event: WindowEvent) {
         match event {
             WindowEvent::CloseRequested => {
                 info!("Close requested");
@@ -272,11 +272,11 @@ impl ApplicationHandler for AuroraApp {
                 self.handle_mouse_scroll(delta);
             }
             
-            WindowEvent::MouseInput { state, button, .. } => {
+            WindowEvent::MouseInput { state: _, button: _, .. } => {
                 // Handle mouse clicks for UI interaction
             }
             
-            WindowEvent::CursorMoved { position, .. } => {
+            WindowEvent::CursorMoved { position: _, .. } => {
                 // Track cursor position for hover effects
             }
             

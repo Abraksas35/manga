@@ -5,8 +5,8 @@ use std::collections::VecDeque;
 use rand::seq::SliceRandom;
 use rand::thread_rng;
 use serde::{Serialize, Deserialize};
-use rodio::{OutputStream};
-use std::sync::{Arc, Mutex};
+use rodio::{OutputStream, OutputStreamHandle};
+use std::sync::Arc;
 use std::time::Duration;
 use log::warn;
 
@@ -75,8 +75,8 @@ pub struct MusicPlayer {
     playback_mode: PlaybackMode,
     /// Current playback position
     current_position: Duration,
-    /// Audio output stream
-    _stream: Option<Arc<rodio::OutputStream>>,
+    /// Audio output stream handle
+    _stream: Option<Arc<OutputStreamHandle>>,
     /// Audio sink
     sink: Option<rodio::Sink>,
     /// Music directory path
@@ -101,7 +101,6 @@ impl MusicPlayer {
             playback_mode: PlaybackMode::Shuffle, // Default to shuffle as requested
             current_position: Duration::ZERO,
             _stream: None,
-            _stream_handle: None,
             sink: None,
             music_dir,
             volume: 0.7,
@@ -120,7 +119,7 @@ impl MusicPlayer {
     fn init_audio(&mut self) {
         match OutputStream::try_default() {
             Ok((stream, _handle)) => {
-                self._stream = Some(Arc::new(stream));
+                self._stream = Some(Arc::new(stream.handle()));
                 // Sink will be created when playing
             }
             Err(e) => {
@@ -206,8 +205,8 @@ impl MusicPlayer {
                     match rodio::Decoder::new(file) {
                         Ok(source) => {
                             // Create a new sink for playback
-                            if let Some(stream) = &self._stream {
-                                match rodio::Sink::try_new(stream) {
+                            if let Some(stream_handle) = &self._stream {
+                                match rodio::Sink::try_new(stream_handle.as_ref()) {
                                     Ok(sink) => {
                                         sink.append(source);
                                         self.sink = Some(sink);
