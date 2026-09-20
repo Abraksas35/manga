@@ -131,7 +131,7 @@ impl Editor {
                 path,
                 self.buffer.to_string(),
                 ChangeType::Checkpoint,
-                description.clone(),
+                description,
             );
         }
         
@@ -275,7 +275,7 @@ impl Editor {
     }
 
     /// Move cursor
-    fn move_cursor(&mut self, dx: i32, dy: i32, modifiers: ModifiersState) {
+    fn move_cursor(&mut self, dx: i32, dy: i32, _modifiers: ModifiersState) {
         let (mut line, mut col) = self.buffer.cursor();
         
         if dx < 0 && col > 0 {
@@ -303,13 +303,13 @@ impl Editor {
     }
 
     /// Go to line start
-    fn go_to_line_start(&mut self, modifiers: ModifiersState) {
+    fn go_to_line_start(&mut self, _modifiers: ModifiersState) {
         let (line, _) = self.buffer.cursor();
         self.buffer.set_cursor(line, 0);
     }
 
     /// Go to line end
-    fn go_to_line_end(&mut self, modifiers: ModifiersState) {
+    fn go_to_line_end(&mut self, _modifiers: ModifiersState) {
         let (line, _) = self.buffer.cursor();
         if let Some(line_content) = self.buffer.line(line) {
             let col = line_content.chars().count();

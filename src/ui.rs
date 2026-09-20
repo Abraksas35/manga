@@ -76,7 +76,7 @@ impl UI {
         editor: &Editor,
         time_tracker: &TimeTracker,
         music_player: &MusicPlayer,
-        wallpaper: &WallpaperManager,
+        _wallpaper: &WallpaperManager,
         // render_context: &mut impl VelloRenderContext,
     ) {
         // Background/wallpaper would be rendered first
@@ -112,7 +112,7 @@ impl UI {
         // - Selection
         
         let buffer = editor.buffer();
-        let highlights = editor.get_highlights();
+        let _highlights = editor.get_highlights();
         let viewport = editor.viewport();
         
         // Render each visible line
@@ -122,7 +122,7 @@ impl UI {
                 self.render_line_number(line_idx + 1);
                 
                 // Render line content with highlights
-                self.render_line_content(&line_content, line_idx, &highlights);
+                self.render_line_content(&line_content, line_idx, &[]);
             }
         }
         
@@ -132,18 +132,18 @@ impl UI {
     }
 
     /// Render a line number
-    fn render_line_number(&self, line: usize) {
+    fn render_line_number(&self, _line: usize) {
         // Would render the line number in the gutter area
         // using Vello's text rendering
     }
 
     /// Render line content with syntax highlighting
-    fn render_line_content(&self, content: &str, line_idx: usize, highlights: &[crate::syntax_highlighter::HighlightedSegment]) {
+    fn render_line_content(&self, _content: &str, _line_idx: usize, _highlights: &[crate::syntax_highlighter::HighlightedSegment]) {
         // Would render the text with appropriate colors based on highlights
     }
 
     /// Render the cursor
-    fn render_cursor(&self, line: usize, col: usize, viewport: &crate::editor::Viewport) {
+    fn render_cursor(&self, _line: usize, _col: usize, _viewport: &crate::editor::Viewport) {
         // Would render a blinking cursor at the current position
     }
 
@@ -152,13 +152,13 @@ impl UI {
         let buffer = editor.buffer();
         
         // File name or "Untitled"
-        let file_name = buffer.file_name().unwrap_or("Untitled");
+        let _file_name = buffer.file_name().unwrap_or("Untitled");
         
         // Cursor position
-        let (line, col) = buffer.cursor();
+        let (_line, _col) = buffer.cursor();
         
         // Time spent
-        let time_str = if let Some(path) = buffer.path() {
+        let _time_str = if let Some(_path) = buffer.path() {
             if let Some(seconds) = time_tracker.get_current_file_time() {
                 TimeTracker::format_duration(seconds)
             } else {
@@ -169,7 +169,7 @@ impl UI {
         };
         
         // Dirty indicator
-        let dirty_indicator = if buffer.is_dirty() { "●" } else { "" };
+        let _dirty_indicator = if buffer.is_dirty() { "●" } else { "" };
         
         // Status bar content:
         // [file_name] [dirty] | Ln X, Col Y | Time: Z | Encoding: UTF-8 | Language: Rust
@@ -187,14 +187,14 @@ impl UI {
         // - Shuffle mode indicator
         // - Volume control
         
-        if let Some(track) = music_player.current_track() {
-            let state_icon = match music_player.state() {
+        if let Some(_track) = music_player.current_track() {
+            let _state_icon = match music_player.state() {
                 PlayerState::Playing => "▶",
                 PlayerState::Paused => "⏸",
                 PlayerState::Stopped => "⏹",
             };
             
-            let shuffle_icon = if music_player.playback_mode() == PlaybackMode::Shuffle {
+            let _shuffle_icon = if music_player.playback_mode() == PlaybackMode::Shuffle {
                 "🔀"
             } else {
                 ""
@@ -203,7 +203,7 @@ impl UI {
     }
 
     /// Render the history timeline
-    fn render_history_timeline(&self, editor: &Editor) {
+    fn render_history_timeline(&self, _editor: &Editor) {
         // Timeline slider at the bottom
         // Shows code evolution over time
         // Can scrub through to see old versions
@@ -226,7 +226,7 @@ impl UI {
     }
 
     /// Handle mouse click
-    pub fn handle_mouse_click(&mut self, x: f64, y: f64, editor: &mut Editor) -> bool {
+    pub fn handle_mouse_click(&mut self, _x: f64, _y: f64, _editor: &mut Editor) -> bool {
         // Check if clicking on music player area
         // Check if clicking on timeline
         // Check if clicking on editor content
@@ -276,11 +276,11 @@ impl UI {
         }
         
         // Get the current buffer path
-        let path = editor.buffer().path()?;
+        let _path = editor.buffer().path()?;
         
         // Calculate the time based on slider position
         // This is simplified - would need actual time range from history
-        let history = editor.history();
+        let _history = editor.history();
         
         // Get snapshots and find the one at the slider position
         None // Placeholder

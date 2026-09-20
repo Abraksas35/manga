@@ -76,11 +76,9 @@ pub struct MusicPlayer {
     /// Current playback position
     current_position: Duration,
     /// Audio output stream
-    _stream: Option<OutputStream>,
-    /// Audio output handle
-    _stream_handle: Option<rodio::OutputStreamHandle>,
+    _stream: Option<Arc<rodio::OutputStream>>,
     /// Audio sink
-    sink: Option<Arc<Mutex<rodio::Sink>>>,
+    sink: Option<rodio::Sink>,
     /// Music directory path
     music_dir: PathBuf,
     /// Volume (0.0 to 1.0)
@@ -121,9 +119,8 @@ impl MusicPlayer {
     /// Initialize audio output
     fn init_audio(&mut self) {
         match OutputStream::try_default() {
-            Ok((stream, handle)) => {
-                self._stream = Some(stream);
-                self._stream_handle = Some(handle);
+            Ok((stream, _handle)) => {
+                self._stream = Some(Arc::new(stream));
                 // Sink will be created when playing
             }
             Err(e) => {
@@ -141,8 +138,9 @@ impl MusicPlayer {
             return;
         }
 
-        let music_dir = self.music_dir.clone();
-        self.scan_directory(&music_dir);
+        // Clone the music_dir to avoid borrow conflict
+        let music_dir_clone = self.music_dir.clone();
+        self.scan_directory(&music_dir_clone);
         
         // Sort tracks by title
         self.all_tracks.sort_by(|a, b| a.title.cmp(&b.title));
@@ -208,11 +206,14 @@ impl MusicPlayer {
                     match rodio::Decoder::new(file) {
                         Ok(source) => {
                             // Create a new sink for playback
-                            if let Some(handle) = &self._stream_handle {
-                                if let Ok(sink) = rodio::Sink::try_new(handle) {
-                                    sink.append(source);
-                                    self.sink = Some(Arc::new(Mutex::new(sink)));
-                                    self.state = PlayerState::Playing;
+                            if let Some(stream) = &self._stream {
+                                match rodio::Sink::try_new(stream) {
+                                    Ok(sink) => {
+                                        sink.append(source);
+                                        self.sink = Some(sink);
+                                        self.state = PlayerState::Playing;
+                                    }
+                                    Err(e) => warn!("Failed to create sink: {}", e),
                                 }
                             }
                         }
@@ -236,7 +237,7 @@ impl MusicPlayer {
 
     /// Pause playback
     pub fn pause(&mut self) {
-        if let Some(ref sink) = self.sink {
+        if let Some(_sink) = &self.sink {
             // Note: rodio doesn't have built-in pause, so we stop for now
             // A more advanced implementation would use a different approach
         }

@@ -318,7 +318,7 @@ impl ApplicationHandler for AuroraApp {
         }
     }
 
-    fn exiting(&mut self, event_loop: &ActiveEventLoop) {
+    fn exiting(&mut self, _event_loop: &ActiveEventLoop) {
         info!("Exiting Aurora IDE...");
         
         // Save all data
